@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TripGraph | Smart Travel Recommendations</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+
+            font-family: Arial, Helvetica, sans-serif;
+
+            min-height: 100vh;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #e0f2fe,
+                    #f0fdf4,
+                    #fff7ed
+                );
+
+            color: #172033;
+        }
+
+
+        /* HEADER */
+
+        header {
+
+            padding: 25px 8%;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+        }
+
+        .logo {
+
+            font-size: 26px;
+
+            font-weight: bold;
+
+            color: #0f766e;
+        }
+
+        .logo span {
+
+            color: #2563eb;
+        }
+
+        .tagline {
+
+            color: #64748b;
+
+            font-size: 14px;
+        }
+
+
+        /* HERO */
+
+        .hero {
+
+            max-width: 1100px;
+
+            margin: 20px auto 35px;
+
+            padding: 55px 30px;
+
+            text-align: center;
+
+            border-radius: 28px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0f766e,
+                    #2563eb
+                );
+
+            color: white;
+
+            box-shadow:
+                0 20px 45px
+                rgba(37, 99, 235, 0.25);
+        }
+
+        .hero h1 {
+
+            font-size: 48px;
+
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+
+            max-width: 650px;
+
+            margin: auto;
+
+            font-size: 18px;
+
+            line-height: 1.6;
+
+            opacity: 0.95;
+        }
+
+
+        /* MAIN */
+
+        .container {
+
+            max-width: 1100px;
+
+            margin: auto;
+
+            padding: 0 20px 60px;
+        }
+
+
+        /* SELECTION CARD */
+
+        .selection-card {
+
+            background: rgba(255,255,255,0.95);
+
+            padding: 30px;
+
+            border-radius: 22px;
+
+            box-shadow:
+                0 12px 35px
+                rgba(15, 23, 42, 0.08);
+        }
+
+        .selection-card h2 {
+
+            margin-bottom: 8px;
+        }
+
+        .selection-card .description {
+
+            color: #64748b;
+
+            margin-bottom: 25px;
+        }
+
+
+        /* INTEREST CARDS */
+
+        .interests {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 15px;
+        }
+
+        .interest {
+
+            position: relative;
+        }
+
+        .interest input {
+
+            position: absolute;
+
+            opacity: 0;
+        }
+
+        .interest label {
+
+            display: block;
+
+            padding: 18px 12px;
+
+            text-align: center;
+
+            border: 2px solid #e2e8f0;
+
+            border-radius: 16px;
+
+            background: #ffffff;
+
+            cursor: pointer;
+
+            transition: 0.25s;
+
+            font-weight: bold;
+        }
+
+        .interest label:hover {
+
+            transform: translateY(-3px);
+
+            border-color: #60a5fa;
+
+            box-shadow:
+                0 8px 18px
+                rgba(37, 99, 235, 0.12);
+        }
+
+
+        /* SELECTED INTEREST */
+
+        .interest input:checked + label {
+
+            border-color: #2563eb;
+
+            background: #dbeafe;
+
+            color: #1d4ed8;
+
+            box-shadow:
+                0 8px 20px
+                rgba(37, 99, 235, 0.25);
+
+            transform: translateY(-3px);
+        }
+
+        .interest input:checked + label::after {
+
+            content: "✓";
+
+            position: absolute;
+
+            top: 8px;
+
+            right: 10px;
+
+            width: 24px;
+
+            height: 24px;
+
+            line-height: 24px;
+
+            border-radius: 50%;
+
+            background: #2563eb;
+
+            color: white;
+
+            font-size: 14px;
+
+            font-weight: bold;
+        }
+
+        .emoji {
+
+            display: block;
+
+            font-size: 30px;
+
+            margin-bottom: 8px;
+        }
+
+
+        /* BUTTON */
+
+        .button-container {
+
+            margin-top: 25px;
+
+            text-align: center;
+        }
+
+        button {
+
+            border: none;
+
+            padding: 15px 45px;
+
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #0f766e
+                );
+
+            color: white;
+
+            font-size: 17px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 10px 25px
+                rgba(37, 99, 235, 0.25);
+
+            transition: 0.25s;
+        }
+
+        button:hover {
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 14px 30px
+                rgba(37, 99, 235, 0.3);
+        }
+
+
+        /* RESULTS */
+
+        .results {
+
+            margin-top: 50px;
+        }
+
+        .results-heading {
+
+            text-align: center;
+
+            margin-bottom: 30px;
+        }
+
+        .results-heading h2 {
+
+            font-size: 32px;
+
+            margin-bottom: 8px;
+        }
+
+        .results-heading p {
+
+            color: #64748b;
+
+            font-size: 16px;
+        }
+
+
+        /* RECOMMENDATION GRID */
+
+        .recommendations {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 25px;
+        }
+
+
+        /* DESTINATION CARD */
+
+        .destination {
+
+            position: relative;
+
+            background: white;
+
+            border-radius: 22px;
+
+            padding: 28px;
+
+            box-shadow:
+                0 10px 30px
+                rgba(15, 23, 42, 0.08);
+
+            border: 1px solid #e2e8f0;
+
+            transition: 0.3s;
+
+            overflow: hidden;
+        }
+
+        .destination:hover {
+
+            transform: translateY(-6px);
+
+            box-shadow:
+                0 20px 40px
+                rgba(15, 23, 42, 0.14);
+        }
+
+
+        /* BEST MATCH */
+
+        .best-match {
+
+            position: absolute;
+
+            top: 0;
+
+            right: 0;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f59e0b,
+                    #f97316
+                );
+
+            color: white;
+
+            padding: 8px 15px;
+
+            border-radius:
+                0 0 0 15px;
+
+            font-size: 13px;
+
+            font-weight: bold;
+        }
+
+
+        /* DESTINATION HEADER */
+
+        .destination-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 15px;
+
+            margin-bottom: 20px;
+
+            padding-top: 5px;
+        }
+
+        .destination h3 {
+
+            font-size: 26px;
+
+            color: #172033;
+        }
+
+
+        /* MATCH SCORE */
+
+        .score {
+
+            background: #dcfce7;
+
+            color: #15803d;
+
+            padding: 8px 13px;
+
+            border-radius: 20px;
+
+            font-weight: bold;
+
+            font-size: 13px;
+
+            white-space: nowrap;
+        }
+
+
+        /* MATCH PERCENTAGE */
+
+        .match-percentage {
+
+            margin-bottom: 20px;
+        }
+
+        .percentage-text {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            margin-bottom: 7px;
+
+            font-size: 13px;
+
+            font-weight: bold;
+
+            color: #64748b;
+        }
+
+        .progress-bar {
+
+            height: 8px;
+
+            background: #e2e8f0;
+
+            border-radius: 20px;
+
+            overflow: hidden;
+        }
+
+        .progress-fill {
+
+            height: 100%;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #2563eb,
+                    #0f766e
+                );
+
+            border-radius: 20px;
+        }
+
+
+        /* SECTION TITLE */
+
+        .section-title {
+
+            font-size: 14px;
+
+            font-weight: bold;
+
+            color: #64748b;
+
+            margin: 18px 0 9px;
+        }
+
+
+        /* BADGES */
+
+        .badges {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 8px;
+        }
+
+        .badge {
+
+            padding: 7px 11px;
+
+            border-radius: 20px;
+
+            font-size: 13px;
+
+            font-weight: 600;
+        }
+
+        .interest-badge {
+
+            background: #dbeafe;
+
+            color: #1d4ed8;
+        }
+
+        .activity-badge {
+
+            background: #dcfce7;
+
+            color: #15803d;
+        }
+
+
+        /* INFORMATION */
+
+        .info-box {
+
+            margin-top: 18px;
+
+            padding-top: 16px;
+
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .info-row {
+
+            margin-bottom: 14px;
+        }
+
+        .info-title {
+
+            font-size: 14px;
+
+            font-weight: bold;
+
+            color: #64748b;
+
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+
+            font-size: 15px;
+
+            color: #334155;
+
+            line-height: 1.5;
+        }
+
+
+        /* ABOUT */
+
+        .about {
+
+            margin-top: 5px;
+
+            line-height: 1.6;
+
+            color: #475569;
+
+            font-size: 14px;
+        }
+
+
+        /* FOOTER */
+
+        footer {
+
+            text-align: center;
+
+            padding: 30px;
+
+            color: #64748b;
+
+            font-size: 14px;
+        }
+
+
+        /* RESPONSIVE */
+
+        @media (max-width: 850px) {
+
+            .interests {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .recommendations {
+
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+
+                font-size: 38px;
+            }
+        }
+
+
+        @media (max-width: 500px) {
+
+            header {
+
+                flex-direction: column;
+
+                gap: 8px;
+            }
+
+            .interests {
+
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+
+                margin: 10px;
+
+                padding: 40px 20px;
+            }
+
+            .hero h1 {
+
+                font-size: 32px;
+            }
+
+            .selection-card {
+
+                padding: 20px;
+            }
+
+            .destination {
+
+                padding: 22px;
+            }
+
+            .destination-header {
+
+                align-items: flex-start;
+
+                flex-direction: column;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <div class="logo">
+
+        ✈️ Trip<span>Graph</span>
+
+    </div>
+
+    <div class="tagline">
+
+        Smart travel recommendations
+
+    </div>
+
+</header>
+
+
+
+<section class="hero">
+
+    <h1>
+
+        Find Your Perfect Trip 🌍
+
+    </h1>
+
+    <p>
+
+        Tell us what you love and TripGraph will explore
+        the travel graph to find destinations that match
+        your interests.
+
+    </p>
+
+</section>
+
+
+
+<main class="container">
+
+
+<section class="selection-card">
+
+
+    <h2>
+
+        ✨ What are you interested in?
+
+    </h2>
+
+
+    <p class="description">
+
+        Select one or more interests to discover your best matches.
+
+    </p>
+
+
+
+    <form method="POST">
+
+
+        <div class="interests">
+
+
+            <!-- BEACH -->
+
+            <div class="interest">
+
+                <input
+                    type="checkbox"
+                    id="beach"
+                    name="interests"
+                    value="Beach"
+                    {% if "Beach" in selected_interests %}
+                    checked
+                    {% endif %}
+                >
+
+                <label for="beach">
+
+                    <span class="emoji">🏖️</span>
+
+                    Beach
+
+                </label>
+
+            </div>
+
+
+
+            <!-- ADVENTURE -->
+
+            <div class="interest">
+
+                <input
+                    type="checkbox"
+                    id="adventure"
+                    name="interests"
+                    value="Adventure"
+                    {% if "Adventure" in selected_interests %}
+                    checked
+                    {% endif %}
+                >
+
+                <label for="adventure">
+
+                    <span class="emoji">🧗</span>
+
+                    Adventure
+
+                </label>
+
+            </div>
+
+
+
+            <!-- NATURE -->
+
+            <div class="interest">
+
+                <input
+                    type="checkbox"
+                    id="nature"
+                    name="interests"
+                    value="Nature"
+                    {% if "Nature" in selected_interests %}
+                    checked
+                    {% endif %}
+                >
+
+                <label for="nature">
+
+                    <span class="emoji">🌿</span>
+
+                    Nature
+
+                </label>
+
+            </div>
+
+
+
+            <!-- MOUNTAINS -->
+
+            <div class="interest">
+
+                <input
+                    type="checkbox"
+                    id="mountains"
+                    name="interests"
+                    value="Mountains"
+                    {% if "Mountains" in selected_interests %}
+                    checked
+                    {% endif %}
+                >
+
+                <label for="mountains">
+
+                    <span class="emoji">🏔️</span>
+
+                    Mountains
+
+                </label>
+
+            </div>
+
+
+
+            <!-- FOOD -->
+
+            <div class="interest">
+
+                <input
+                    type="checkbox"
+                    id="food"
+                    name="interests"
+                    value="Food"
+                    {% if "Food" in selected_interests %}
+                    checked
+                    {% endif %}
+                >
+
+                <label for="food">
+
+                    <span class="emoji">🍴</span>
+
+                    Food
+
+                </label>
+
+            </div>
+
+
+
+            <!-- HISTORY -->
+
+            <div class="interest">
+
+                <input
+                    type="checkbox"
+                    id="history"
+                    name="interests"
+                    value="History"
+                    {% if "History" in selected_interests %}
+                    checked
+                    {% endif %}
+                >
+
+                <label for="history">
+
+                    <span class="emoji">🏛️</span>
+
+                    History
+
+                </label>
+
+            </div>
+
+
+
+            <!-- CULTURE -->
+
+            <div class="interest">
+
+                <input
+                    type="checkbox"
+                    id="culture"
+                    name="interests"
+                    value="Culture"
+                    {% if "Culture" in selected_interests %}
+                    checked
+                    {% endif %}
+                >
+
+                <label for="culture">
+
+                    <span class="emoji">🎭</span>
+
+                    Culture
+
+                </label>
+
+            </div>
+
+
+
+            <!-- RELAXATION -->
+
+            <div class="interest">
+
+                <input
+                    type="checkbox"
+                    id="relaxation"
+                    name="interests"
+                    value="Relaxation"
+                    {% if "Relaxation" in selected_interests %}
+                    checked
+                    {% endif %}
+                >
+
+                <label for="relaxation">
+
+                    <span class="emoji">🧘</span>
+
+                    Relaxation
+
+                </label>
+
+            </div>
+
+
+        </div>
+
+
+
+        <div class="button-container">
+
+            <button type="submit">
+
+                🔎 Find My Trip
+
+            </button>
+
+        </div>
+
+
+    </form>
+
+
+</section>
+
+
+
+{% if recommendations %}
+
+
+<section class="results">
+
+
+    <div class="results-heading">
+
+        <h2>
+
+            🌟 Your Recommended Destinations
+
+        </h2>
+
+        <p>
+
+            Based on your selected interests
+
+        </p>
+
+    </div>
+
+
+
+    <div class="recommendations">
+
+
+        {% for recommendation in recommendations %}
+
+
+        <div class="destination">
+
+
+            <!-- BEST MATCH -->
+
+            {% if recommendation.matches == recommendation.total_interests %}
+
+                <div class="best-match">
+
+                    🏆 Best Match
+
+                </div>
+
+            {% endif %}
+
+
+
+            <!-- HEADER -->
+
+            <div class="destination-header">
+
+                <h3>
+
+                    📍 {{ recommendation.name }}
+
+                </h3>
+
+                <span class="score">
+
+                    {{ recommendation.matches }}/{{ recommendation.total_interests }} match
+
+                </span>
+
+            </div>
+
+
+
+            <!-- MATCH PERCENTAGE -->
+
+            <div class="match-percentage">
+
+                <div class="percentage-text">
+
+                    <span>Match Score</span>
+
+                    <span>
+                        {{ ((recommendation.matches / recommendation.total_interests) * 100)|round|int }}%
+                    </span>
+
+                </div>
+
+                <div class="progress-bar">
+
+                    <div
+                        class="progress-fill"
+                        style="width: {{ ((recommendation.matches / recommendation.total_interests) * 100)|round|int }}%;"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- MATCHED INTERESTS -->
+
+            <div>
+
+                <div class="section-title">
+
+                    💙 Matched Interests
+
+                </div>
+
+                <div class="badges">
+
+                    {% for interest in recommendation.matched_names %}
+
+                    <span class="badge interest-badge">
+
+                        {{ interest }}
+
+                    </span>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+
+
+            <!-- LOCATION -->
+
+            <div class="info-box">
+
+                <div class="info-row">
+
+                    <div class="info-title">
+
+                        📍 Location
+
+                    </div>
+
+                    <div class="info-value">
+
+                        {{ recommendation.location or "Information not available" }}
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- BUDGET -->
+
+                <div class="info-row">
+
+                    <div class="info-title">
+
+                        💰 Estimated Budget
+
+                    </div>
+
+                    <div class="info-value">
+
+                        {{ recommendation.budget or "Information not available" }}
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ABOUT -->
+
+                <div class="info-row">
+
+                    <div class="info-title">
+
+                        📝 About
+
+                    </div>
+
+                    <div class="about">
+
+                        {{ recommendation.description or "Explore this destination based on your selected interests." }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ACTIVITIES -->
+
+            <div>
+
+                <div class="section-title">
+
+                    🎯 Activities
+
+                </div>
+
+                <div class="badges">
+
+                    {% for activity in recommendation.activities %}
+
+                    <span class="badge activity-badge">
+
+                        {{ activity }}
+
+                    </span>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        {% endfor %}
+
+
+    </div>
+
+
+</section>
+
+
+{% endif %}
+
+
+</main>
+
+
+
+<footer>
+
+    TripGraph • Graph-Based Travel Recommendation System
+
+</footer>
+
+
+</body>
+
+</html>
