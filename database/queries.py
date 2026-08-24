@@ -15,6 +15,10 @@ driver = GraphDatabase.driver(
 )
 
 
+# ---------------------------------------------------------
+# Main recommendation query
+# ---------------------------------------------------------
+
 def recommend_destinations(interests):
 
     with driver.session() as session:
@@ -36,7 +40,7 @@ def recommend_destinations(interests):
                    d.location AS location,
                    d.budget AS budget,
                    d.description AS description,
-                   collect(a.name) AS activities
+                   COLLECT(DISTINCT a.name) AS activities
 
             ORDER BY matched_interests DESC, destination
             """,
@@ -60,30 +64,85 @@ def recommend_destinations(interests):
         return recommendations
 
 
-try:
+# ---------------------------------------------------------
+# Multi-hop graph query
+# Finds destinations that share interests with a destination
+# ---------------------------------------------------------
 
-    print("Recommendations for Beach + Adventure:\n")
+def find_similar_destinations(destination_name):
 
-    recommendations = recommend_destinations(
-        ["Beach", "Adventure"]
-    )
+    with driver.session() as session:
 
-    for recommendation in recommendations:
+        result = session.run(
+            """
+            MATCH (d:Destination {name: $destination_name})
+                  -[:HAS_INTEREST]->(i:Interest)
+                  <-[:HAS_INTEREST]-(similar:Destination)
 
-        print(
-            recommendation["name"],
-            "| Matches:",
-            recommendation["matches"],
-            "| Matched:",
-            ", ".join(recommendation["matched_names"]),
-            "| Location:",
-            recommendation["location"],
-            "| Budget:",
-            recommendation["budget"],
-            "| Activities:",
-            ", ".join(recommendation["activities"])
+            WHERE d <> similar
+
+            RETURN similar.name AS destination,
+                   COLLECT(DISTINCT i.name) AS shared_interests
+
+            ORDER BY SIZE(shared_interests) DESC, destination
+            """,
+            destination_name=destination_name
         )
 
-finally:
+        similar_destinations = []
 
-    driver.close()
+        for record in result:
+
+            similar_destinations.append({
+                "destination": record["destination"],
+                "shared_interests": record["shared_interests"]
+            })
+
+        return similar_destinations
+
+
+# ---------------------------------------------------------
+# Test the recommendation query
+# ---------------------------------------------------------
+
+if __name__ == "__main__":
+
+    try:
+
+        print("Recommendations for Beach + Adventure:\n")
+
+        recommendations = recommend_destinations(
+            ["Beach", "Adventure"]
+        )
+
+        for recommendation in recommendations:
+
+            print(
+                recommendation["name"],
+                "| Matches:",
+                recommendation["matches"],
+                "| Matched:",
+                ", ".join(recommendation["matched_names"]),
+                "| Location:",
+                recommendation["location"],
+                "| Budget:",
+                recommendation["budget"],
+                "| Activities:",
+                ", ".join(recommendation["activities"])
+            )
+
+        print("\nSimilar destinations to Goa:\n")
+
+        similar_destinations = find_similar_destinations("Goa")
+
+        for destination in similar_destinations:
+
+            print(
+                destination["destination"],
+                "| Shared interests:",
+                ", ".join(destination["shared_interests"])
+            )
+
+    finally:
+
+        driver.close()
